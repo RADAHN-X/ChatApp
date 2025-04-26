@@ -28,11 +28,11 @@ A real-time one to one chat web application built using Java 17, MySQL, Spring B
 
 1. **Clone the Repository**:
    ```sh
-   git clone https://github.com/Mandoo28/ChatApp.git
+   git clone https://github.com/RADAHN-X/ChatApp.git
    cd ChatApp
    ```
    
-2. Create MySQL database using [SQLScript](src/main/resources/static/static/SQLScript.txt)
+2. Create MySQL database using [SQLScript](src/main/resources/static/SQLScript.txt)
 
 3. Update MySQL password in [application.properties](src/main/resources/application.properties)
 
