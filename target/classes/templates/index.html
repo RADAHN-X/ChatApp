@@ -610,16 +610,31 @@
         fetchAndDisplayUserChat();
     }
 
-    // Chat Functions
     async function fetchAndDisplayUserChat() {
-        const userChatResponse = await fetch(`/messages/${username}/${selectedUserId}`);
-        const userChat = await userChatResponse.json();
-        chatMessages.innerHTML = '';
-        userChat.forEach(chat => displayMessage(chat.senderId, chat.content));
-        scrollToBottom();
+        try {
+            const response = await fetch(`/messages/${username}/${selectedUserId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch chat history');
+            }
+            const messages = await response.json();
+
+            chatMessages.innerHTML = '';
+
+            messages.forEach(message => {
+                displayMessage(
+                    message.senderId,
+                    message.content,
+                    message.timestamp
+                );
+            });
+
+            scrollToBottom();
+        } catch (error) {
+            console.error('Error fetching chat history:', error);
+        }
     }
 
-    function displayMessage(senderId, content) {
+    function displayMessage(senderId, content, timestamp) {
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message');
 
@@ -629,13 +644,23 @@
             messageContainer.classList.add('received');
         }
 
+        const messageDate = timestamp ? new Date(timestamp) : new Date();
         messageContainer.innerHTML = `
-                ${content}
-                <span class="message-time">${formatTime(new Date())}</span>
-            `;
+        ${content}
+        <span class="message-time">${formatDateTime(messageDate)}</span>
+    `;
 
         chatMessages.appendChild(messageContainer);
-        scrollToBottom();
+    }
+
+    function formatDateTime(date) {
+        return date.toLocaleString([], {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 
     function sendMessage(event) {

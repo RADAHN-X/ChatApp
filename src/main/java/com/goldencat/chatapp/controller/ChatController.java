@@ -35,12 +35,11 @@ public class ChatController {
         );
     }
 
-    @GetMapping("/message/{senderId}/{receiverId}")
-    public ResponseEntity<List<Message>> getChatMessage(
+    @GetMapping("/messages/{senderId}/{receiverId}")
+    public ResponseEntity<List<Message>> getChatMessages(
             @PathVariable String senderId,
             @PathVariable String receiverId
-    ){
-        var chatMessage = messageService.getChatMessage(senderId, receiverId);
-        return ResponseEntity.ok(chatMessage);
+    ) {
+        return ResponseEntity.ok(messageService.getChatMessage(senderId, receiverId));
     }
 }
