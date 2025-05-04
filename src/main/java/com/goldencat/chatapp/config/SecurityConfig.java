@@ -11,10 +11,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer {
 
     @Autowired
     AccountService accountService;
@@ -30,17 +32,16 @@ public class SecurityConfig {
                 .csrf(csry -> csry.disable())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(
-                                "/static/**",         // أضف هذا الخط
+                                "/static/**",
                                 "/css/**",
                                 "/images/**",
                                 "/js/**",
                                 "/webjars/**",
-                                "/palestin.png",      // أضف هذا الخط إذا أردت السماح للصورة مباشرة
-                                "/register"
+                                "/register",
+                                "/uploads/**"  // هذا السطر موجود بالفعل
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // ... بقية الإعدادات بدون تغيير
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
@@ -57,8 +58,15 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptionsConfig -> frameOptionsConfig.sameOrigin()));
         return http.build();
     }
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(accountService).passwordEncoder(passwordEncoder());
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
     }
 }

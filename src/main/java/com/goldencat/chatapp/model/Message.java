@@ -1,9 +1,6 @@
 package com.goldencat.chatapp.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,5 +19,22 @@ public class Message {
     private String senderId;
     private String receiverId;
     private String content;
-    private Date timestamp;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false, updatable = false)
+    private Date timestamp = new Date();
+
+    @Enumerated(EnumType.STRING)
+    private MessageType type;
+
+    private String filePath;
+
+    @PrePersist
+    protected void onCreate() {
+        timestamp = new Date();
+    }
+
+    public enum MessageType {
+        TEXT, IMAGE
+    }
 }

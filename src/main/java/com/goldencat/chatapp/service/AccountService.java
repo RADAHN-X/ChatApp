@@ -24,17 +24,14 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
 
     public Account findAccountByUsername(String username) {
-        return accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Account not found"));
+        return accountRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Account not found with username: " + username));
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws  UsernameNotFoundException{
-
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Account account = findAccountByUsername(username);
-        if(account == null){
-            throw new UsernameNotFoundException("Username or Password not found");
-        }
-        return new Account(
+        return new org.springframework.security.core.userdetails.User(
                 account.getUsername(),
                 account.getPassword(),
                 authorities()
@@ -45,35 +42,33 @@ public class AccountService implements UserDetailsService {
         return Arrays.asList(new SimpleGrantedAuthority("USER"));
     }
 
-    public  Account registerAccount(String username, String password) {
-        if(accountRepository.findByUsername(username).isPresent()){
-            throw new RuntimeException("Username already exists");
+    public Account registerAccount(String username, String password) {
+        if (accountRepository.findByUsername(username).isPresent()) {
+            throw new IllegalArgumentException("Username already exists");
         }
 
         Account account = new Account();
         account.setUsername(username);
         account.setPassword(passwordEncoder.encode(password));
+        account.setStatus(Status.OFFLINE); // Default status
         return accountRepository.save(account);
     }
 
-    public List<Account> getConnectedUsers(){
+    public List<Account> getConnectedUsers() {
         return accountRepository.findAllByStatus(Status.ONLINE);
     }
 
-    public void disconnect(Account User){
-        var existingUser = accountRepository.findByUsername(User.getUsername()).orElse(null);
-        if(existingUser != null){
-            existingUser.setStatus(Status.OFFLINE);
-            accountRepository.save(existingUser);
-        }
+    public void disconnect(Account user) {
+        Account existingUser = accountRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        existingUser.setStatus(Status.OFFLINE);
+        accountRepository.save(existingUser);
     }
 
-    public void saveUser(Account User){
-        var existingUser = accountRepository.findByUsername(User.getUsername()).orElse(null);
-        if(existingUser != null){
-            existingUser.setStatus(Status.ONLINE);
-            accountRepository.save(existingUser);
-        }
+    public void saveUser(Account user) {
+        Account existingUser = accountRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        existingUser.setStatus(Status.ONLINE);
+        accountRepository.save(existingUser);
     }
-
 }

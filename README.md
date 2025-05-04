@@ -18,7 +18,16 @@ A real-time one to one chat web application built using Java 17, MySQL, Spring B
 - **Real-Time Communication**: Spring WebSocket, STOMP protocol
 - **Build Tool**: Maven
 
-## Setup Instructions
+## Screenshots
+
+### Login Page
+![Login Page](screenshots/login.png)
+
+### Chat Interface
+![Chat Interface](screenshots/chat.png)
+
+### Mobile View
+![Mobile View](screenshots/mobile.png)
 
 ### Prerequisites
 - Java 17 or higher
